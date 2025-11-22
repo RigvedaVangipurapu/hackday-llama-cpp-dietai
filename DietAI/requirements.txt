@@ -1,0 +1,5 @@
+llama-cpp-python
+sentence-transformers
+faiss-cpu
+python-dotenv
+

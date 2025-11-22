@@ -1,0 +1,11 @@
+{
+  "allergies": [],
+  "dietary_style": "",
+  "cuisine_preferences": [],
+  "macro_goals": {
+    "carbohydrates_percent": 0,
+    "protein_percent": 0,
+    "fat_percent": 0
+  }
+}
+

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+DietAI/vector_db/*
+!DietAI/vector_db/.gitkeep
+DietAI/memory/*.txt
+!DietAI/memory/.gitkeep
+
+# Model files (too large for git)
+*.gguf
+*.bin
+*.safetensors
+
