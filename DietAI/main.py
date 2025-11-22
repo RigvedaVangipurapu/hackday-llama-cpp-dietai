@@ -36,7 +36,9 @@ class DietAI:
             n_ctx=2048,
             n_threads=4,
             n_gpu_layers=0,
-            verbose=False
+            verbose=False,
+            stream=True,
+            max_tokens=200
         )
         
         # Load user data
@@ -84,7 +86,16 @@ class DietAI:
         Step 12: Design the System Prompt
         Build comprehensive system prompt with user context
         """
-        prompt = """You are an expert Personalized Nutrition and Macro Coach. Your primary directive is to provide meal and dietary recommendations that strictly align with the user's provided blood report data and stated macro goals/preferences. Your responses must be professional, motivational, and scientifically grounded. Always include the estimated macronutrient breakdown (Carbs/Protein/Fat) for any meal recommendation. You are not a registered dietitian or a medical doctor; remind the user to consult a professional for chronic conditions."""
+        prompt = """You are an expert Personalized Nutrition and Macro Coach.
+
+CRITICAL RULES:
+- Keep ALL responses under 200 tokens
+- Be PRECISE and CONCISE - maximum 2-3 sentences
+- Always include macro breakdown (C/P/F) for meals
+- Consider user's blood report and preferences
+- Be direct and actionable
+
+Note: You are not a registered dietitian or medical doctor."""
         
         return prompt
     
@@ -229,15 +240,27 @@ For mental health emergencies, contact:
         # Get LLM parameters from config
         temperature = float(self.config['llm']['temperature'])
         max_tokens = int(self.config['llm']['max_tokens'])
+        repeat_penalty = float(self.config['llm']['repeat_penalty'])
         
-        # Generate response
+        # Generate response with streaming enabled
         response = self.llm.create_chat_completion(
             messages=messages,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            repeat_penalty=repeat_penalty,
+            stream=True
         )
         
-        assistant_message = response['choices'][0]['message']['content']
+        # Collect and display streaming response
+        assistant_message = ""
+        for chunk in response:
+            delta = chunk['choices'][0]['delta']
+            if 'content' in delta:
+                token = delta['content']
+                print(token, end="", flush=True)
+                assistant_message += token
+        
+        print()  # New line after streaming completes
         
         # Update memory (Step 11: Update Memory Buffer)
         self.memory_manager.add_message("user", user_message)
@@ -334,7 +357,6 @@ For mental health emergencies, contact:
                 # Process normal query
                 print("\nDietAI: ", end="", flush=True)
                 response = self.chat(user_input)
-                print(response)
                 print()
                 
             except KeyboardInterrupt:
